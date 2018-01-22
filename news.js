@@ -4,7 +4,7 @@
 const iconv = require('iconv-lite');
 const cheerio = require('cheerio');
 const xml2js = require('xml2js');
-const rp = require('request-promise');
+const rp = require('request-promise-native');
 const { dateString, twoDigits } = require('mimiaka');
 const { textWithin140Chars } = require('./twitter.js');
 

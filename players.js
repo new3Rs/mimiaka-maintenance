@@ -5,7 +5,7 @@
 Players
 */
 
-const rp = require('request-promise');
+const rp = require('request-promise-native');
 const cheerio = require('cheerio');
 
 function addUpdatedProperty(set, player, key, value) {
