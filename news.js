@@ -5,8 +5,9 @@ const iconv = require('iconv-lite');
 const cheerio = require('cheerio');
 const xml2js = require('xml2js');
 const rp = require('request-promise');
-const { dateString, twoDigits, textWithin140Chars } =
-    require('mimiaka');
+const { dateString, twoDigits } = require('mimiaka');
+const { textWithin140Chars } = require('./twitter.js');
+
 
 function japaneseDateString(date) {
     return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日`;
