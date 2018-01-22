@@ -1,0 +1,16 @@
+{
+  "name": "mimiaka-one-off",
+  "version": "0.0.1",
+  "description": "Mimiaka periodic maintenance",
+  "bin": {
+    "maintenance": "./maintenace.js"
+  },
+  "dependencies": {
+    "mongodb": "^3.0.1",
+    "request-promise-native": "^1.0.5",
+    "twitter": "^1.7.1",
+    "iconv-lite": "^0.4.19",
+    "xml2js": "^0.4.19",
+    "mimiaka": "../node-mimiaka"
+  }
+}
