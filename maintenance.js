@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 /* global module */
 // Mimiaka: Internet live relay of Go professional games
 // (C) 2013-2014 ICHIKAWA, Yuji (New 3 Rs)
