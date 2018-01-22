@@ -94,15 +94,16 @@ class MimiakaTwitter {
     }
 
     async updateTwitterConstant(Constants) {
-        const response = await new Twitter({
+        const twitter = new Twitter({
             consumer_key: this.service.consumerKey,
             consumer_secret: this.service.secret,
             access_token_key: this.official.services.twitter.accessToken,
             access_token_secret: this.official.services.twitter.accessTokenSecret
-        }).get('help/configuration', {});
+        });
+        const response = await twitter.get('help/configuration', {});
         if ((response != null) && (response.characters_reserved_per_media != null) && (response.short_url_length != null) && (response.short_url_length_https != null)) {
             response.category = 'twitter';
-            Constants.update(
+            await Constants.update(
                 { category: 'twitter' },
                 {
                     $set: response,
@@ -118,12 +119,13 @@ class MimiakaTwitter {
             return;
         }
         try {
-            const response = new Twitter({
+            const twitter = new Twitter({
                 consumer_key: this.service.consumerKey,
                 consumer_secret: this.service.secret,
                 access_token_key: user.services.twitter.accessToken,
                 access_token_secret: user.services.twitter.accessTokenSecret
-            }).get('users/show', {user_id: user.services.twitter.id});
+            });
+            const response = await twitter.get('users/show', { user_id: user.services.twitter.id });
             await Users.update({ 'services.twitter.id': user.services.twitter.id },
                 { $set: { 'profile.profileImageUrl': response.profile_image_url }});
         } catch (e) {
