@@ -11,6 +11,6 @@
     "twitter": "^1.7.1",
     "iconv-lite": "^0.4.19",
     "xml2js": "^0.4.19",
-    "mimiaka": "../node-mimiaka"
+    "mimiaka": "github:new3Rs/node-mimiaka"
   }
 }
