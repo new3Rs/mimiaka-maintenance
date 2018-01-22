@@ -70,7 +70,7 @@ async function updatePickup(db) {
 async function dailyMaintenance() {
     const client = await MongoClient.connect(process.env.DYNO ?
         process.env.MONGO_URL : 'mongodb://localhost:3001');
-    const db = client.db('meteor');
+    const db = client.db(process.env.DYNO ? 'mimiaka' : 'meteor');
     try {
         await endLives(db);
     } catch (e) {
