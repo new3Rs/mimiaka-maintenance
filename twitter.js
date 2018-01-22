@@ -4,7 +4,7 @@ const Twitter = require('twitter');
 let MAX_CHARACTERS = 140;
 let SHORT_URL_LENGTH = 23;
 let SHORT_URL_LENGTH_HTTPS = 23;
-let NO_PORT_URL_REGEXP = /https?:\/\/[a-zA-Z0-9-.]+(\/(%[0-9a-fA-F]{2}|[a-zA-Z0-9-_.!()])*)*(\?([a-zA-Z0-9-_.!()&=]|%[0-9a-fA-F]{2})+)*(\#([a-zA-Z0-9-_.~!$&'()\*\+,;=\/\?]|%[0-9a-fA-F]{2})+)*/g;
+const NO_PORT_URL_REGEXP = /https?:\/\/[a-zA-Z0-9-.]+(\/(%[0-9a-fA-F]{2}|[a-zA-Z0-9-_.!()])*)*(\?([a-zA-Z0-9-_.!()&=]|%[0-9a-fA-F]{2})+)*(\#([a-zA-Z0-9-_.~!$&'()\*\+,;=\/\?]|%[0-9a-fA-F]{2})+)*/g;
 
 function textWithin140Chars(header, body, footer) {
     const status = header + body + footer;
@@ -68,29 +68,22 @@ class MimiakaTwitter {
             return;
         }
 
-        const p = { status };
-        if (params != null) {
-            for (let k in params) {
-                p[k] = params[k];
-            }
-        }
-        let response;
+        const p = Object.assign({ status }, params);
         try {
-            response = await new Twitter({
+            const response = await new Twitter({
                 consumer_key: this.service.consumerKey,
                 consumer_secret: this.service.secret,
                 access_token_key: user.services.twitter.accessToken,
                 access_token_secret: user.services.twitter.accessTokenSecret
             }).post('statuses/update', p);
+            return {
+                statusCode: 200,
+                data: response
+            };
         } catch (e) {
-            this.errorNotify(`tweet: ${user.profile.name}, ${status}, ${e[0] && e[0].message}, ${e.stack}`);
+            await this.errorNotify(`tweet: ${user.profile.name}, ${status}, ${e[0] && e[0].message}, ${e.stack}`);
             return e;
         }
-
-        return {
-            statusCode: 200,
-            data: response
-        };
     }
 
     async updateTwitterConstant(Constants) {
@@ -103,7 +96,7 @@ class MimiakaTwitter {
         const response = await twitter.get('help/configuration', {});
         if ((response != null) && (response.characters_reserved_per_media != null) && (response.short_url_length != null) && (response.short_url_length_https != null)) {
             response.category = 'twitter';
-            await Constants.update(
+            await Constants.updateOne(
                 { category: 'twitter' },
                 {
                     $set: response,
@@ -126,7 +119,7 @@ class MimiakaTwitter {
                 access_token_secret: user.services.twitter.accessTokenSecret
             });
             const response = await twitter.get('users/show', { user_id: user.services.twitter.id });
-            await Users.update({ 'services.twitter.id': user.services.twitter.id },
+            await Users.updateOne({ 'services.twitter.id': user.services.twitter.id },
                 { $set: { 'profile.profileImageUrl': response.profile_image_url }});
         } catch (e) {
             switch (e[0] && e[0].code) {

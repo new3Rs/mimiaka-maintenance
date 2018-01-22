@@ -1,10 +1,10 @@
 /* global exports */
 // (C) 2015 ICHIKAWA, Yuji (New 3 Rs)
 
+const rp = require('request-promise-native');
 const iconv = require('iconv-lite');
 const cheerio = require('cheerio');
 const xml2js = require('xml2js');
-const rp = require('request-promise-native');
 const _ = require('underscore');
 const { dateString, twoDigits } = require('mimiaka');
 const { textWithin140Chars } = require('./twitter.js');
@@ -16,23 +16,19 @@ function japaneseDateString(date) {
 async function asahiArticles(News, twitter) {
     const texts = [];
     const today = new Date(Date.now() + (9 * 60 * 60 * 1000));
-    const URL = `http://www.asahi.com/shimen/${dateString(today).replace(/-/g, '')}/index_tokyo_list.html`;
-    let content;
+    const URL = 'http://www.asahi.com/shimen/' +
+        dateString(today).replace(/-/g, '') +
+        '/index_tokyo_list.html';
     try {
-        content = await rp(URL, { followRedirects: false });
-    } catch (e) {
-        twitter.errorNotify("朝日新聞のアドレスが変わったかも");
-        return texts;
-    }
-    const $ = cheerio.load(content);
-    const $igoshogi = $('#MainInner .Section').filter(function() {
-        return /碁将棋/.test($(this).find('.ListTitle').text());
-    });
-    if ($igoshogi.length === 0) {
-        twitter.errorNotify("朝日新聞のフォーマットが変わったかも");
-    }
-    for (const e of $igoshogi.find('.List li:not(.Image)').toArray()) {
-        try {
+        const content = await rp(URL, { followRedirects: false });
+        const $ = cheerio.load(content);
+        const $igoshogi = $('#MainInner .Section').filter(function() {
+            return /碁将棋/.test($(this).find('.ListTitle').text());
+        });
+        if ($igoshogi.length === 0) {
+            await twitter.errorNotify("朝日新聞のフォーマットが変わったかも");
+        }
+        for (const e of $igoshogi.find('.List li:not(.Image)').toArray()) {
             const $this = $(e);
             const title = $this.text();
             const url = `https://www.asahi.com${$this.find('a').attr('href')}`;
@@ -47,12 +43,17 @@ async function asahiArticles(News, twitter) {
                     url,
                     date: dateString(date)
                 });
-                texts.push(textWithin140Chars(`${title}\n`, $articleText.text().replace(/\n\s+/g, '\n').replace("（６目半コミ出し）\n＊\n", ''), `\n${url}`));
+                texts.push(textWithin140Chars(
+                    title + '\n',
+                    $articleText.text()
+                        .replace(/\n\s+/g, '\n')
+                        .replace('（６目半コミ出し）\n＊\n', ''),
+                    '\n' + url
+                ));
             }
-        } catch (e) {
-            console.log(e);
-            twitter.errorNotify("朝日新聞のアドレスが変わったかも");
         }
+    } catch (e) {
+        await twitter.errorNotify("朝日新聞のアドレスが変わったかも");
     }
     return texts;
 }
@@ -70,7 +71,7 @@ async function mainichiArticles(News, twitter) {
             const title = $title.text();
             const articleText = $this.find('.txt').text();
             if ((/(第[０-９]+局の[０-９]+|第[０-９]+譜)/.test(title)) && (News.find({url}).count() === 0)) {
-                await News.insert({
+                await News.insertOne({
                     title,
                     url,
                     date: `${match[1]}-${match[2]}-${match[3]}`
@@ -80,7 +81,7 @@ async function mainichiArticles(News, twitter) {
         }
     } catch (e) {
         console.log('mainichiArticles', e);
-        twitter.errorNotify("毎日新聞のアドレスが変わったかも");
+        await twitter.errorNotify("毎日新聞のアドレスが変わったかも");
     }
     return texts;
 }
@@ -105,8 +106,8 @@ async function nhkTextView(News, twitter) {
                 const title = item.title[0].trim();
                 const articleText = _.unescape(item.description[0].trim()).replace(/&#[0-9]+;/, '');
                 const date = new Date(item.pubDate[0]);
-                if (await News.find({url}).count() === 0) {
-                    await News.insert({
+                if (await News.find({ url }).count() === 0) {
+                    await News.insertOne({
                         title,
                         url,
                         date: dateString(date)
@@ -117,7 +118,7 @@ async function nhkTextView(News, twitter) {
         }
     } catch (e) {
         console.log('nhkTextView', e);
-        twitter.errorNotify("NHKテキストビューのアドレスが変わったかも");
+        await twitter.errorNotify("NHKテキストビューのアドレスが変わったかも");
     }
     return texts;
 }
@@ -135,7 +136,7 @@ async function ironnaArticles(News, twitter) {
             const articleText = $this.find('.word').text();
             if (articleText.indexOf('碁') >= 0) {
                 if (await News.find({url}).count() === 0) {
-                    await News.insert({
+                    await News.insertOne({
                         title,
                         url
                     });
@@ -145,7 +146,7 @@ async function ironnaArticles(News, twitter) {
         }
     } catch (e) {
         console.log('ironnaArticles', e);
-        twitter.errorNotify("iRONNAのアドレスが変わったかも");
+        await twitter.errorNotify("iRONNAのアドレスが変わったかも");
     }
     return texts;
 }
@@ -165,7 +166,7 @@ async function gameResults(News, GameInfos, twitter) {
             const latest = await News.findOne({ title }, { sort: { date: -1 }});
             const date = new Date(match[1]);
             if (date.getTime() > new Date(latest && latest.date || '2000-01-01').getTime()) {
-                await News.insert({
+                await News.insertOne({
                     title,
                     date: match[1],
                     html
@@ -174,11 +175,11 @@ async function gameResults(News, GameInfos, twitter) {
                 await registerGameResults(GameInfos, date, $, $('body table').eq(1));
             }
         } else {
-            twitter.errorNotify("先週の主な対局結果のフォーマットが変わったかも");
+            await twitter.errorNotify("先週の主な対局結果のフォーマットが変わったかも");
         }
     } catch (e) {
         console.log(e);
-        twitter.errorNotify("先週の主な対局結果のアドレスが変わったかも");
+        await twitter.errorNotify("先週の主な対局結果のアドレスが変わったかも");
     }
     return texts;
 }
@@ -212,9 +213,7 @@ async function sgfResult(text, twitter) {
 async function registerGameResults(GameInfos, updateDate, $, $table, twitter) {
     const year = updateDate.getFullYear();
     let dt;
-    const length = $table.length;
-    for (let i = 0; i < length; i++) {
-        const elem = $table[i];
+    for (const elem of $table.toArray()) {
         const $elem = $(elem);
         const $td = $elem.find('td');
         let pb, br, pw, wr;
@@ -250,7 +249,7 @@ async function registerGameResults(GameInfos, updateDate, $, $table, twitter) {
             await twitter.errorNotify('registerGameResults: 日付がわからない');
             continue;
         }
-        await GameInfos.update({
+        await GameInfos.updateOne({
             GN: $td.eq(0).text(),
             PB: pb,
             BR: br,

@@ -39,8 +39,14 @@ async function endLives(db) {
             );
         }
     }
-    const youtube = await Constants.findOne({ category: 'youtube' });
-    await Constants.updateOne({ _id: youtube._id }, { $unset: { id: '' }});
+    await Constants.updateOne(
+        { category: 'youtube' },
+        {
+            $unset: { id: '' },
+            $setOnInsert: { category: 'youtube' }
+        },
+        { upsert: true }
+    );
 }
 
 
@@ -56,7 +62,7 @@ async function updatePickup(db) {
     if (pickups.length == 0) {
         return;
     }
-    await Constants.update(
+    await Constants.updateOne(
         { category: 'pickup' },
         {
             $set: { recordId: choice(pickups)._id },
@@ -68,43 +74,25 @@ async function updatePickup(db) {
 
 
 async function dailyMaintenance() {
-    const client = await MongoClient.connect(process.env.DYNO ?
+    const client = await MongoClient.connect(process.env.DYNO ?  // TODO - DYNO is experimental
         process.env.MONGO_URL : 'mongodb://localhost:3001');
     const db = client.db(process.env.DYNO ? 'mimiaka' : 'meteor');
-    try {
-        await endLives(db);
-    } catch (e) {
-        console.log('endLives', e);
-    }
-    try {
-        await updatePickup(db);
-    } catch (e) {
-        console.log('updatePickup', e);
-    }
     const twitter = new MimiakaTwitter();
     await twitter.initialize(db);
-    try {
-        const Constants = db.collection('constants');
-        await twitter.updateTwitterConstant(Constants);
-        const Users = db.collection('users');
-        await twitter.updateAllProfileImageUrls(Users);
-    } catch (e) {
-        console.log('updateTwitterConstant', e);
-    }
-    try {
-        await updateArticles(db, twitter);
-    } catch (e) {
-        console.log('updateArticles', e);
-    }
-    try {
-        const Players = db.collection('players');
-        await updateRanking(Players, twitter);
-    } catch (e) {
-        console.log('updateRanking', e);
-    }
+    await endLives(db);
+    await updatePickup(db);
+    const Constants = db.collection('constants');
+    await twitter.updateTwitterConstant(Constants);
+    const Users = db.collection('users');
+    await twitter.updateAllProfileImageUrls(Users);
+    await updateArticles(db, twitter);
+    const Players = db.collection('players');
+    await updateRanking(Players, twitter);
     await client.close();
 }
 
 if (require.main === module) {
-    dailyMaintenance();
+    dailyMaintenance().catch(function(reason) {
+        console.log(reason);
+    });
 }
