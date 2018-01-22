@@ -29,11 +29,13 @@ async function _updateRanking(Players, twitter) {
     const heads = $('#anyid tr:first-child th').map(function() { return $(this).text().trim(); }).toArray();
     const $tr = $('#anyid tr:not(:first-child)');
     const $list = $tr.map(function() { return $(this).children('td').map(function() { return $(this).text().trim(); }); });
-    $list.each(function(i, e) {
+    const length = $list.length;
+    for (let i = 0; i < length; i++)  {
+        const e = $list[i];
         if (e.length == 0) {
-            return;
+            continue;
         }
-        const player = Players.findOne({ mamumamuName: e[heads.indexOf('氏名')] }) || {};
+        const player = await Players.findOne({ mamumamuName: e[heads.indexOf('氏名')] }) || {};
         const update = { updatedAt: time };
         const rank = parseInt(e[heads.indexOf('順位')]);
         addUpdatedProperty(update, player, 'rank', rank);
@@ -67,15 +69,15 @@ async function _updateRanking(Players, twitter) {
         }
         if (Object.keys(update).length > 1) {
             if (player._id != null) {
-                Players.update(player._id, {$set: update});
+                await Players.update({ _id: player._id }, { $set: update });
             } else {
-                Players.insert(update);
+                await Players.insert(update);
             }
             changed = true;
         }
-    });
+    }
     if (changed) {
-        Players.update({ updatedAt: { $ne: time }}, { $set: {
+        await Players.update({ updatedAt: { $ne: time }}, { $set: {
             rank: null,
             updatedAt: time
         }}, { multi: true });
@@ -91,13 +93,14 @@ async function tweetRankingUpdate(Players, twitter) {
         limit: 3
     });
     const hotPlayers = (await cursor.toArray()).map(e => (e.name || e.mamumamuName) + `(${e.rank}位)`);
-    const hotWomen = (await Players.find({
+    cursor = Players.find({
         rank: { $lt: 500 },
         sex: 'F'
     }, {
         sort: { ratingChange: -1 },
         limit: 3
-    }).toArray()).map(e => (e.name || e.mamumamuName) + `(${e.rank}位)`);
+    });
+    const hotWomen = (await cursor.toArray()).map(e => (e.name || e.mamumamuName) + `(${e.rank}位)`);
     const status = `ランキング表更新しました。
 https://mimiaka.herokuapp.com/ranking
 注目の棋士は${hotPlayers.join(',')}、注目の女流棋士は${hotWomen.join(',')}です！`;

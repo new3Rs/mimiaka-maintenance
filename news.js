@@ -5,9 +5,9 @@ const iconv = require('iconv-lite');
 const cheerio = require('cheerio');
 const xml2js = require('xml2js');
 const rp = require('request-promise-native');
+const _ = require('underscore');
 const { dateString, twoDigits } = require('mimiaka');
 const { textWithin140Chars } = require('./twitter.js');
-
 
 function japaneseDateString(date) {
     return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日`;
@@ -17,7 +17,14 @@ async function asahiArticles(News, twitter) {
     const texts = [];
     const today = new Date(Date.now() + (9 * 60 * 60 * 1000));
     const URL = `http://www.asahi.com/shimen/${dateString(today).replace(/-/g, '')}/index_tokyo_list.html`;
-    const $ = cheerio.load(await rp(URL, { followRedirects: false }));
+    let content;
+    try {
+        content = await rp(URL, { followRedirects: false });
+    } catch (e) {
+        twitter.errorNotify("朝日新聞のアドレスが変わったかも");
+        return texts;
+    }
+    const $ = cheerio.load(content);
     const $igoshogi = $('#MainInner .Section').filter(function() {
         return /碁将棋/.test($(this).find('.ListTitle').text());
     });

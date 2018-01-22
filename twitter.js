@@ -124,24 +124,24 @@ class MimiakaTwitter {
                 access_token_key: user.services.twitter.accessToken,
                 access_token_secret: user.services.twitter.accessTokenSecret
             }).get('users/show', {user_id: user.services.twitter.id});
-            Users.update({ 'services.twitter.id': user.services.twitter.id },
+            await Users.update({ 'services.twitter.id': user.services.twitter.id },
                 { $set: { 'profile.profileImageUrl': response.profile_image_url }});
         } catch (e) {
             switch (e[0] && e[0].code) {
                 case 32:
                 case 89: // 'Could not authenticate you' or 'Invalid or expired token'
-                    Users.update({ 'services.twitter.id': user.services.twitter.id }, { $unset: {
+                    await Users.update({ 'services.twitter.id': user.services.twitter.id }, { $unset: {
                         'services.twitter.accessToken': '',
                         'services.twitter.accessTokenSecret': ''
                     }});
                     break;
                 case 130: // 'Over capacity'
-                    this.errorNotify(`updateProfileImageUrl: ${user.profile.name}, ${JSON.stringify(e)}`);
+                    await this.errorNotify(`updateProfileImageUrl: ${user.profile.name}, ${JSON.stringify(e)}`);
                     return false;
                 case 326: // 'To protect our users from spam and other malicious activity, this account is temporarily locked. Please log in to https://twitter.com to unlock your account.'
                     return true;
                 default:
-                    this.errorNotify(`updateProfileImageUrl: ${user.profile.name}, ${JSON.stringify(e)}`);
+                    await this.errorNotify(`updateProfileImageUrl: ${user.profile.name}, ${JSON.stringify(e)}`);
                     return true;
             }
         }
