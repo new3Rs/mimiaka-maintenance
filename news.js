@@ -171,7 +171,7 @@ async function gameResults(News, GameInfos, twitter) {
                     html
                 });
                 texts.push(title + '\n' + URL);
-                setTimeout(() => registerGameResults(GameInfos, date, $, $('body table').eq(1)), 0);
+                await registerGameResults(GameInfos, date, $, $('body table').eq(1));
             }
         } else {
             twitter.errorNotify("先週の主な対局結果のフォーマットが変わったかも");
@@ -187,7 +187,7 @@ function hankaku(text) {
     return text.replace(/[０-９Ａ-Ｚａ-ｚ]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0));
 }
 
-function sgfResult(text) {
+async function sgfResult(text, twitter) {
     let match;
     if (text === '不戦勝') {
         return 'B+Default';
@@ -204,7 +204,7 @@ function sgfResult(text) {
     : (match = text.match(/([0-9０-９]+)(?:目半|点)/)) ?
         `${hankaku(match[1])}.5`
     :
-        (twitter.errorNotify(`sgfResult: 勝敗の詳細が不明${text}`),
+        (await twitter.errorNotify(`sgfResult: 勝敗の詳細が不明${text}`),
         text.slice(1));
     return re;
 }
@@ -212,7 +212,9 @@ function sgfResult(text) {
 async function registerGameResults(GameInfos, updateDate, $, $table, twitter) {
     const year = updateDate.getFullYear();
     let dt;
-    $table.find('tr').each(function(i, elem) {
+    const length = $table.length;
+    for (let i = 0; i < length; i++) {
+        const elem = $table[i];
         const $elem = $(elem);
         const $td = $elem.find('td');
         let pb, br, pw, wr;
@@ -229,10 +231,10 @@ async function registerGameResults(GameInfos, updateDate, $, $table, twitter) {
                 :
                     `${year}-${twoDigits(month)}-${twoDigits(date)}`;
             }
-            return;
+            continue;
         } else if ($td.length !== 6) {
-            twitter.errorNotify(`registerGameResults: フォーマットが違う ${$td.text()}`);
-            return;
+            await twitter.errorNotify(`registerGameResults: フォーマットが違う ${$td.text()}`);
+            continue;
         }
         if (/△/.test($td.eq(1).text()) || $td.eq(3).text() === '不戦勝' || $td.eq(3).text() === '無勝負') {
             [pb, br] = $td.eq(2).text().split(/\s+/);
@@ -241,13 +243,14 @@ async function registerGameResults(GameInfos, updateDate, $, $table, twitter) {
             [pb, br] = $td.eq(5).text().split(/\s+/);
             [pw, wr] = $td.eq(2).text().split(/\s+/);
         } else {
-            twitter.errorNotify(`registerGameResults: 黒番白番がわからない ${$td.text()}`);
-            return;
+            await twitter.errorNotify(`registerGameResults: 黒番白番がわからない ${$td.text()}`);
+            continue;
         }
         if (!dt) {
-            twitter.errorNotify('registerGameResults: 日付がわからない');
+            await twitter.errorNotify('registerGameResults: 日付がわからない');
+            continue;
         }
-        return GameInfos.update({
+        await GameInfos.update({
             GN: $td.eq(0).text(),
             PB: pb,
             BR: br,
@@ -257,7 +260,7 @@ async function registerGameResults(GameInfos, updateDate, $, $table, twitter) {
         }, {
             $set: {
                 DT: dt,
-                RE: sgfResult($td.eq(3).text())
+                RE: await sgfResult($td.eq(3).text(), twitter)
             },
             $setOnInsert: {
                 GN: $td.eq(0).text(),
@@ -268,15 +271,15 @@ async function registerGameResults(GameInfos, updateDate, $, $table, twitter) {
                 KM: '6.5'
             }
         }, { upsert: true });
-    });
+    }
 }
 
-function updateFromGameResult(News, twitter) {
-    News.find({ title: '先週の主な対局結果' }).forEach(function(doc) {
+async function updateFromGameResult(News, twitter) {
+    const news = await News.find({ title: '先週の主な対局結果' }).toArray();
+    for (const doc of news) {
         const $ = cheerio.load(doc.html);
-        registerGameResults(new Date(doc.date), $, $('body table').eq(1), twitter);
-    });
-
+        await registerGameResults(new Date(doc.date), $, $('body table').eq(1), twitter);
+    }
 }
 
 async function updateArticles(db, twitter) {
