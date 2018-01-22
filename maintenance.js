@@ -68,7 +68,7 @@ async function updatePickup(db) {
 
 
 async function dailyMaintenance() {
-    const client = await MongoClient.connect(process.env.HEROKU_APP_NAME ?
+    const client = await MongoClient.connect(process.env.DYNO ?
         process.env.MONGO_URL : 'mongodb://localhost:3001');
     const db = client.db('meteor');
     try {

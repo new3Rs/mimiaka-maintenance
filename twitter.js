@@ -33,7 +33,7 @@ class MimiakaTwitter {
         const Users = db.collection('users');
         this.service = await Services.findOne({ service: 'twitter' });
         this.official = await Users.findOne(
-            { 'services.twitter.screenName': process.env.HEROKU_APP_NAME ? 'mimiaka1846' : 'test_bot1965' }
+            { 'services.twitter.screenName': process.env.DYNO ? 'mimiaka1846' : 'test_bot1965' }
         );
     }
 
@@ -45,7 +45,7 @@ class MimiakaTwitter {
             access_token_key: this.official.services.twitter.accessToken,
             access_token_secret: this.official.services.twitter.accessTokenSecret
         });
-        if (process.env.HEROKU_APP_NAME) {
+        if (process.env.DYNO) {
             try {
                 await twitter.post('direct_messages/new', {
                     screen_name: 'y_ich',
