@@ -74,9 +74,9 @@ async function updatePickup(db) {
 
 
 async function dailyMaintenance() {
-    const client = await MongoClient.connect(process.env.DYNO ?  // TODO - DYNO is experimental
-        process.env.MONGO_URL : 'mongodb://localhost:3001');
-    const db = client.db(process.env.DYNO ? 'mimiaka' : 'meteor');
+    const client = await MongoClient.connect(process.env.HEROKU_APP_ID ?  // TODO - DYNO is experimental
+        process.env.MIMIAKA_MONGO_URL : 'mongodb://localhost:3001');
+    const db = client.db(process.env.HEROKU_APP_ID ? 'mimiaka' : 'meteor');
     const twitter = new MimiakaTwitter();
     await twitter.initialize(db);
     await endLives(db);
