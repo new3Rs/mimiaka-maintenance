@@ -55,7 +55,7 @@ function getToday() {
     return match[1];
 }
 
-async function updatePickup(db) {
+async function updatePickup(db, twitter) {
     const GameInfos = db.collection('gameinfos');
     const Constants = db.collection('constants');
     const todays_records = await GameInfos.find({
@@ -65,14 +65,17 @@ async function updatePickup(db) {
     if (todays_records.length == 0) {
         return;
     }
+    const c = choice(todays_records);
     await Constants.updateOne(
         { category: 'pickup' },
         {
-            $set: { recordId: choice(todays_records).record },
+            $set: { recordId: c.record },
             $setOnInsert: { category: 'pickup' }
         },
         { upsert: true }
     );
+    const text = `今日の一局は${c.GN}です。 #棋譜並べ会 https://mimiaka.herokuapp.com/`;
+    await twitter.tweet(null, text);
 }
 
 
@@ -83,7 +86,7 @@ async function dailyMaintenance() {
     const twitter = new MimiakaTwitter();
     await twitter.initialize(db);
     await endLives(db);
-    await updatePickup(db);
+    await updatePickup(db, twitter);
     const Constants = db.collection('constants');
     await twitter.updateTwitterConstant(Constants);
     const Users = db.collection('users');
