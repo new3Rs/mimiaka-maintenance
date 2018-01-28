@@ -49,23 +49,26 @@ async function endLives(db) {
     );
 }
 
+function getToday() {
+    const today = new Date(Date.now() - (-9 * 60 - new Date().getTimezoneOffset()) * 60000).toISOString();
+    const match = today.match(/-(.*)T/);
+    return match[1];
+}
 
 async function updatePickup(db) {
-    const Records = db.collection('records');
+    const GameInfos = db.collection('gameinfos');
     const Constants = db.collection('constants');
-
-    const pickups = await Records.find({
+    const todays_records = await GameInfos.find({
         deleted: { $ne: true },
-        pickup: true,
-        live: { $ne: true }
-    }, { fields: { _id: 1 }}).toArray();
-    if (pickups.length == 0) {
+        DT: { $regex: new RegExp(getToday()) }
+    });
+    if (todays_records.length == 0) {
         return;
     }
     await Constants.updateOne(
         { category: 'pickup' },
         {
-            $set: { recordId: choice(pickups)._id },
+            $set: { recordId: choice(todays_records).record },
             $setOnInsert: { category: 'pickup' }
         },
         { upsert: true }
