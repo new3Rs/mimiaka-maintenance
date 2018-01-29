@@ -61,7 +61,7 @@ async function updatePickup(db, twitter) {
     const todays_records = await GameInfos.find({
         deleted: { $ne: true },
         DT: { $regex: new RegExp(getToday()) }
-    });
+    }).toArray();
     if (todays_records.length == 0) {
         return;
     }
