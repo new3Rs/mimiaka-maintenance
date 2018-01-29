@@ -51,16 +51,17 @@ async function endLives(db) {
 
 function getToday() {
     const today = new Date(Date.now() - (-9 * 60 - new Date().getTimezoneOffset()) * 60000).toISOString();
-    const match = today.match(/-(.*)T/);
-    return match[1];
+    const match = today.match(/([0-9]+)-(.*)T/);
+    return match.slice(1, 3);
 }
 
 async function updatePickup(db, twitter) {
     const GameInfos = db.collection('gameinfos');
     const Constants = db.collection('constants');
+    const [thisYear, today] = getToday();
     const todays_records = await GameInfos.find({
         deleted: { $ne: true },
-        DT: { $regex: new RegExp(getToday()) }
+        DT: { $regex: new RegExp(today) }
     }).toArray();
     if (todays_records.length == 0) {
         return;
@@ -74,7 +75,8 @@ async function updatePickup(db, twitter) {
         },
         { upsert: true }
     );
-    const text = `今日の一局は${c.GN}です。 #棋譜並べ会 https://mimiaka.herokuapp.com/`;
+    const interval = parseInt(thisYear) - parseInt(c.DT.replace(/-.*/, ''));
+    const text = `今日の一局は${c.GN || c.EV}です。本局は${interval}年前の今日打たれました。 #棋譜並べ会 https://mimiaka.herokuapp.com/`;
     await twitter.tweet(null, text);
 }
 
