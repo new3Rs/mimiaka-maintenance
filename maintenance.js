@@ -88,7 +88,11 @@ async function dailyMaintenance() {
     const twitter = new MimiakaTwitter();
     await twitter.initialize(db);
     await endLives(db);
-    await updatePickup(db, twitter);
+    try {
+        await updatePickup(db, twitter);
+    } catch (e) {
+        console.log(e);
+    }
     const Constants = db.collection('constants');
     await twitter.updateTwitterConstant(Constants);
     const Users = db.collection('users');
