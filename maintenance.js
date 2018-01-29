@@ -86,20 +86,44 @@ async function dailyMaintenance() {
         process.env.MIMIAKA_MONGO_URL : 'mongodb://localhost:3001');
     const db = client.db(process.env.HEROKU_APP_ID ? 'mimiaka' : 'meteor');
     const twitter = new MimiakaTwitter();
-    await twitter.initialize(db);
-    await endLives(db);
+    try {
+        await twitter.initialize(db);
+    } catch (e) {
+        console.log(e);
+    }
+    try {
+        await endLives(db);
+    } catch (e) {
+        console.log(e);
+    }
     try {
         await updatePickup(db, twitter);
     } catch (e) {
         console.log(e);
     }
     const Constants = db.collection('constants');
-    await twitter.updateTwitterConstant(Constants);
+    try {
+        await twitter.updateTwitterConstant(Constants);
+    } catch (e) {
+        console.log(e);
+    }
     const Users = db.collection('users');
-    await twitter.updateAllProfileImageUrls(Users);
-    await updateArticles(db, twitter);
+    try {
+        await twitter.updateAllProfileImageUrls(Users);
+    } catch (e) {
+        console.log(e);
+    }
+    try {
+        await updateArticles(db, twitter);
+    } catch (e) {
+        console.log(e);
+    }
     const Players = db.collection('players');
-    await updateRanking(Players, twitter);
+    try {
+        await updateRanking(Players, twitter);
+    } catch (e) {
+        console.log(e);
+    }
     await client.close();
 }
 
