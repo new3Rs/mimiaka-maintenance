@@ -61,23 +61,40 @@ async function updatePickup(db, twitter) {
     const [thisYear, today] = getToday();
     const todays_records = await GameInfos.find({
         deleted: { $ne: true },
+        live: { $ne: true },
+        club: { $ne: true },
         DT: { $regex: new RegExp(today) }
     }).toArray();
-    if (todays_records.length == 0) {
-        return;
+    if (todays_records.length > 0) {
+        const c = choice(todays_records);
+        await Constants.updateOne(
+            { category: 'pickup' },
+            {
+                $set: { recordId: c.record },
+                $setOnInsert: { category: 'pickup' }
+            },
+            { upsert: true }
+        );
+        const interval = parseInt(thisYear) - parseInt(c.DT.replace(/-.*/, ''));
+        const text = `今日の一局は${c.GN || c.EV}です。本局は${interval}年前の今日打たれました。 #棋譜並べ会 https://mimiaka.herokuapp.com/`;
+        await twitter.tweet(null, text);
+    } else {
+        const pickups = await GameInfos.find({
+            deleted: { $ne: true },
+            live: { $ne: true },
+            club: { $ne: true },
+            pickup: true
+        }).toArray();
+        const c = choice(pickups);
+        await Constants.updateOne(
+            { category: 'pickup' },
+            {
+                $set: { recordId: c.record },
+                $setOnInsert: { category: 'pickup' }
+            },
+            { upsert: true }
+        );
     }
-    const c = choice(todays_records);
-    await Constants.updateOne(
-        { category: 'pickup' },
-        {
-            $set: { recordId: c.record },
-            $setOnInsert: { category: 'pickup' }
-        },
-        { upsert: true }
-    );
-    const interval = parseInt(thisYear) - parseInt(c.DT.replace(/-.*/, ''));
-    const text = `今日の一局は${c.GN || c.EV}です。本局は${interval}年前の今日打たれました。 #棋譜並べ会 https://mimiaka.herokuapp.com/`;
-    await twitter.tweet(null, text);
 }
 
 
