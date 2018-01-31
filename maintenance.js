@@ -113,11 +113,6 @@ async function dailyMaintenance() {
     } catch (e) {
         console.log(e);
     }
-    try {
-        await updatePickup(db, twitter);
-    } catch (e) {
-        console.log(e);
-    }
     const Constants = db.collection('constants');
     try {
         await twitter.updateTwitterConstant(Constants);
@@ -138,6 +133,11 @@ async function dailyMaintenance() {
     const Players = db.collection('players');
     try {
         await updateRanking(Players, twitter);
+    } catch (e) {
+        console.log(e);
+    }
+    try {
+        await updatePickup(db, twitter);
     } catch (e) {
         console.log(e);
     }
