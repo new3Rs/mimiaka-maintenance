@@ -63,6 +63,7 @@ async function updatePickup(db, twitter) {
         deleted: { $ne: true },
         live: { $ne: true },
         club: { $ne: true },
+        record: { $exists: true },
         DT: { $regex: new RegExp(today) }
     }).toArray();
     if (todays_records.length > 0) {
