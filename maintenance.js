@@ -64,7 +64,7 @@ async function updatePickup(db, twitter) {
         live: { $ne: true },
         club: { $ne: true },
         record: { $exists: true },
-        DT: { $regex: new RegExp('-' + today) }
+        DT: { $regex: new RegExp(`(?<!^${thisYear})-${today}`) }
     }).toArray();
     if (todays_records.length > 0) {
         const c = choice(todays_records);
