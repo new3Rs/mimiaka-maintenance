@@ -172,7 +172,7 @@ async function gameResults(News, GameInfos, twitter) {
                     html
                 });
                 texts.push(title + '\n' + URL);
-                await registerGameResults(GameInfos, date, $, $('body table').eq(1));
+                await registerGameResults(GameInfos, date, $, $('body table').eq(1), twitter);
             }
         } else {
             await twitter.errorNotify("先週の主な対局結果のフォーマットが変わったかも");
