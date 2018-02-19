@@ -213,7 +213,7 @@ async function sgfResult(text, twitter) {
 async function registerGameResults(GameInfos, updateDate, $, $table, twitter) {
     const year = updateDate.getFullYear();
     let dt;
-    for (const elem of $table.toArray()) {
+    for (const elem of $table.find('tr').toArray()) {
         const $elem = $(elem);
         const $td = $elem.find('td');
         let pb, br, pw, wr;
@@ -273,11 +273,15 @@ async function registerGameResults(GameInfos, updateDate, $, $table, twitter) {
     }
 }
 
-async function updateFromGameResult(News, twitter) {
+async function updateFromGameResult(last, GameInfos, News, twitter) {
     const news = await News.find({ title: '先週の主な対局結果' }).toArray();
     for (const doc of news) {
-        const $ = cheerio.load(doc.html);
-        await registerGameResults(new Date(doc.date), $, $('body table').eq(1), twitter);
+        const date = new Date(doc.date);
+        if (date > last) {
+            console.log(doc.title);
+            const $ = cheerio.load(doc.html);
+            await registerGameResults(GameInfos, date, $, $('body table').eq(1), twitter);
+        }
     }
 }
 
@@ -318,3 +322,4 @@ async function updateArticles(db, twitter) {
 }
 
 exports.updateArticles = updateArticles;
+exports.updateFromGameResult = updateFromGameResult;
