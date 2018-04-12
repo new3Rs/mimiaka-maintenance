@@ -137,11 +137,13 @@ async function dailyMaintenance() {
     } catch (e) {
         console.log(e);
     }
+    /*
     try {
         await updatePickup(db, twitter);
     } catch (e) {
         console.log(e);
     }
+    */
     await client.close();
 }
 
