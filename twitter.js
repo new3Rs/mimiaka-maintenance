@@ -52,7 +52,7 @@ class MimiakaTwitter {
                     text: message
                 });
             } catch (e) {
-                console.log('errorNotify', e);
+                console.log('errorNotify', e, this.official);
             }
         } else {
             console.log(message);
