@@ -48,7 +48,7 @@ class MimiakaTwitter {
         if (process.env.HEROKU_APP_ID) {
             try {
                 await twitter.post('direct_messages/new', {
-                    screen_name: 'mimiaka1846',
+                    screen_name: 'y_ich2',
                     text: message
                 });
             } catch (e) {
