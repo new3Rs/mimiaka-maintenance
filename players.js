@@ -97,7 +97,7 @@ async function tweetRankingUpdate(Players, twitter) {
         limit: 3
     }).toArray();
     hotPlayers = hotPlayers.map(e => (e.name || e.mamumamuName) + `(${e.rank}位)`);
-    let hotWomen = Players.find({
+    let hotWomen = await Players.find({
         rank: { $lt: 500 },
         sex: 'F'
     }, {
