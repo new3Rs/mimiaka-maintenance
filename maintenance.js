@@ -122,40 +122,40 @@ async function dailyMaintenance() {
     try {
         await twitter.initialize(db);
     } catch (e) {
-        console.log(e);
+        console.log('twitter.initialize', e);
     }
     try {
         await endLives(db);
     } catch (e) {
-        console.log(e);
+        console.log('endLives', e);
     }
     const Constants = db.collection('constants');
     try {
         await twitter.updateTwitterConstant(Constants);
     } catch (e) {
-        console.log(e);
+        console.log('twitter.updateTwitterConstant', e);
     }
     const Users = db.collection('users');
     try {
         await twitter.updateAllProfileImageUrls(Users);
     } catch (e) {
-        console.log(e);
+        console.log('twitter.updateAllProfileImageUrls', e);
     }
     try {
         await updateArticles(db, twitter);
     } catch (e) {
-        console.log(e);
+        console.log('updateArticles', e);
     }
     const Players = db.collection('players');
     try {
         await updateRanking(Players, twitter);
     } catch (e) {
-        console.log(e);
+        console.log('updateRanking', e);
     }
     try {
         await updatePickup(db, twitter);
     } catch (e) {
-        console.log(e);
+        console.log('updatePickup', e);
     }
     await client.close();
 }
