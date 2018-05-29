@@ -19,19 +19,33 @@ async function endLives(db) {
     const Records = db.collection('records');
     const GameInfos = db.collection('gameinfos');
     const Constants = db.collection('constants');
+    const Chats = db.collection('chats');
+    const Simulations = db.collection('simulations');
     const records = await Records.find({
         live: true,
         club: { $ne: true }
     }).toArray();
     for (const e of records) {
         if (!isLive(e.sgf)) {
-            await Records.updateOne(
-                { _id: e._id },
-                { $unset: {
-                    live: '',
-                    tweetedAt: ''
-                }}
-            );
+            const $set = {};
+            const chats = await Chats.findOne({ recordId: e._id });
+            if (chats != null) {
+                delete chats.recordId;
+                $set.chats = chats;
+            }
+            const simulations = await Simulations.findOne({ recordId: e._id });
+            if (simulations != null) {
+                delete simulations.recordId;
+                $set.simulations = simulations;
+            }
+            const modifier = { $unset: {
+                live: '',
+                tweetedAt: ''
+            }};
+            if (Object.keys($set).length > 0) {
+                modifier.$set = $set;
+            }
+            await Records.updateOne({ _id: e._id }, modifier);
             // 耳赤でobserveが動いているはずだけど、スリープしている可能性があるのでここで更新する
             await GameInfos.updateOne(
                 { record: e._id },
