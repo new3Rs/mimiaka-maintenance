@@ -95,7 +95,6 @@ class MimiakaTwitter {
         });
         const response = await twitter.get('help/configuration', {});
         if ((response != null) && (response.characters_reserved_per_media != null) && (response.short_url_length != null) && (response.short_url_length_https != null)) {
-            response.category = 'twitter';
             await Constants.updateOne(
                 { category: 'twitter' },
                 {
