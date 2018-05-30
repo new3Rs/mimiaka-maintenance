@@ -1,16 +1,16 @@
 {
   "name": "mimiaka-maintenance",
   "private": true,
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Mimiaka periodic maintenance",
   "bin": {
     "maintenance": "./maintenance.js"
   },
   "dependencies": {
     "cheerio": "^1.0.0-rc.2",
-    "iconv-lite": "^0.4.21",
+    "iconv-lite": "^0.4.23",
     "mimiaka": "github:new3Rs/node-mimiaka",
-    "mongodb": "^3.0.7",
+    "mongodb": "^3.0.8",
     "request-promise-native": "^1.0.5",
     "twitter": "^1.7.1",
     "underscore": "^1.9.0",
