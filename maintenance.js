@@ -8,7 +8,7 @@ const { isLive } = require('mimiaka');
 const { MimiakaTwitter } = require('./twitter.js');
 const { updateArticles } = require('./news.js');
 const { updateRanking } = require('./players.js');
-
+const { createIndices } = require('./create_indices.js');
 
 function choice(array) {
     return array[Math.floor(Math.random() * array.length)];
@@ -156,6 +156,11 @@ async function dailyMaintenance() {
         await updatePickup(db, twitter);
     } catch (e) {
         console.log('updatePickup', e);
+    }
+    try {
+        createIndices(db);
+    } catch (e) {
+        console.log('createIndices', e);
     }
     await client.close();
 }
