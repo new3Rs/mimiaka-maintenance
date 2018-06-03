@@ -21,6 +21,7 @@ async function endLives(db) {
     const Constants = db.collection('constants');
     const Chats = db.collection('chats');
     const Simulations = db.collection('simulations');
+    const Forecasts = db.collection('forecasts');
     const records = await Records.find({
         live: true,
         club: { $ne: true }
@@ -37,6 +38,11 @@ async function endLives(db) {
             if (simulations != null) {
                 delete simulations.recordId;
                 $set.simulations = simulations;
+            }
+            const forecast = await Forecasts.findOne({ recordId: e._id });
+            if (forecast != null) {
+                delete forecast.recordId;
+                $set.forecast = forecast;
             }
             const modifier = { $unset: {
                 live: '',
