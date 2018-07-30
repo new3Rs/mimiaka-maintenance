@@ -84,6 +84,7 @@ async function updatePickup(db, twitter) {
         live: { $ne: true },
         club: { $ne: true },
         record: { $exists: true },
+        GN: { $ne: { $regex: /AlphaGo.*vs/ }},
         DT: { $regex: new RegExp(`(?<!^${thisYear})-${today}`) }
     }).toArray();
     if (todays_records.length > 0) {
