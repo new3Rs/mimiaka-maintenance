@@ -43,14 +43,18 @@ class MimiakaTwitter {
             consumer_key: this.service.consumerKey,
             consumer_secret: this.service.secret,
             access_token_key: this.official.services.twitter.accessToken,
-            access_token_secret: this.official.services.twitter.accessTokenSecret
+            access_token_secret: this.official.services.twitter.accessTokenSecret,
+            request_options: { json: true }
         });
         if (process.env.HEROKU_APP_ID) {
             try {
-                await twitter.post('direct_messages/new', {
-                    screen_name: 'y_ich2',
-                    text: message
-                });
+                await twitter.post('direct_messages/events/new', { event: {
+                    type: 'message_create',
+                    message_create: {
+                        target: { recipient_id: this.official.services.twitter.id },
+                        message_data: { text: message }
+                    }
+                }});
             } catch (e) {
                 console.log('errorNotify', e, this.official);
             }
