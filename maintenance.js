@@ -109,6 +109,9 @@ async function updatePickup(db, twitter) {
             pickup: true
         }).toArray();
         const c = choice(pickups);
+        if (!c) {
+            return
+        }
         await Constants.updateOne(
             { category: 'pickup' },
             {
@@ -123,7 +126,7 @@ async function updatePickup(db, twitter) {
 
 async function dailyMaintenance() {
     const client = await MongoClient.connect(process.env.HEROKU_APP_ID ?  // TODO - DYNO is experimental
-        process.env.MIMIAKA_MONGO_URL : 'mongodb://localhost:3001');
+        process.env.MIMIAKA_MONGO_URL : 'mongodb://localhost:3001', { useNewUrlParser: true });
     const db = client.db(process.env.HEROKU_APP_ID ? 'mimiaka' : 'meteor');
     const twitter = new MimiakaTwitter();
     try {
