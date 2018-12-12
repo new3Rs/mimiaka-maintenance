@@ -35,6 +35,7 @@ class MimiakaTwitter {
         this.official = await Users.findOne(
             { 'services.twitter.screenName': process.env.HEROKU_APP_ID ? 'mimiaka1846' : 'test_bot1965' }
         );
+        this.developer = await Users.findOne({ 'services.twitter.screenName': 'y_ich' });
     }
 
     async errorNotify(message) {
@@ -46,20 +47,16 @@ class MimiakaTwitter {
             access_token_secret: this.official.services.twitter.accessTokenSecret,
             request_options: { json: true }
         });
-        if (process.env.HEROKU_APP_ID) {
-            try {
-                await twitter.post('direct_messages/events/new', { event: {
-                    type: 'message_create',
-                    message_create: {
-                        target: { recipient_id: this.official.services.twitter.id },
-                        message_data: { text: message }
-                    }
-                }});
-            } catch (e) {
-                console.log('errorNotify', e, this.official);
-            }
-        } else {
-            console.log(message);
+        try {
+            await twitter.post('direct_messages/events/new', { event: {
+                type: 'message_create',
+                message_create: {
+                    target: { recipient_id: this.developer.services.twitter.id },
+                    message_data: { text: message }
+                }
+            }});
+        } catch (e) {
+            console.log('errorNotify', e, this.official);
         }
     }
 
@@ -161,3 +158,20 @@ class MimiakaTwitter {
 
 exports.MimiakaTwitter = MimiakaTwitter;
 exports.textWithin140Chars = textWithin140Chars;
+
+const { MongoClient } = require('mongodb');
+async function test() {
+    const client = await MongoClient.connect(process.env.HEROKU_APP_ID ?  // TODO - DYNO is experimental
+        process.env.MIMIAKA_MONGO_URL : 'mongodb://localhost:3001', { useNewUrlParser: true });
+    const db = client.db(process.env.HEROKU_APP_ID ? 'mimiaka' : 'meteor');
+    const twitter = new MimiakaTwitter();
+    try {
+        await twitter.initialize(db);
+    } catch (e) {
+        console.log('twitter.initialize', e);
+    }
+    twitter.errorNotify('test');
+}
+if (require.main === module) {
+    test();
+}
