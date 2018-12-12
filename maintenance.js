@@ -176,7 +176,7 @@ async function dailyMaintenance() {
 }
 
 if (require.main === module) {
-    dailyMaintenance().catch(function(reason) {
+    dailyMaintenance().then(function() { process.exit(); }).catch(function(reason) {
         console.log(reason);
     });
 }

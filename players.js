@@ -39,6 +39,7 @@ async function _updateRanking(Players, twitter) {
         if (e.length == 0) {
             continue;
         }
+        console.log(e[heads.indexOf('氏名')]);
         const player = await Players.findOne({ mamumamuName: e[heads.indexOf('氏名')] }) || {};
         const update = { updatedAt: time };
         const rank = parseInt(e[heads.indexOf('順位')]);
@@ -108,7 +109,8 @@ async function tweetRankingUpdate(Players, twitter) {
     const status = `ランキング表更新しました。
 https://mimiaka.herokuapp.com/ranking
 注目の棋士は${hotPlayers.join(',')}、注目の女流棋士は${hotWomen.join(',')}です！`;
-    await twitter.tweet(null, status);
+    // await twitter.tweet(null, status);
+    await twitter.errorNotify(status);
 }
 
 async function updateRanking(Players, twitter) {
@@ -118,3 +120,33 @@ async function updateRanking(Players, twitter) {
 }
 
 exports.updateRanking = updateRanking;
+
+const { MongoClient } = require('mongodb');
+const { MimiakaTwitter } = require('./twitter');
+
+async function test() {
+    const client = await MongoClient.connect(process.env.HEROKU_APP_ID ?  // TODO - DYNO is experimental
+        process.env.MIMIAKA_MONGO_URL : 'mongodb://localhost:3001', { useNewUrlParser: true });
+    const db = client.db(process.env.HEROKU_APP_ID ? 'mimiaka' : 'meteor');
+    const twitter = new MimiakaTwitter();
+    try {
+        await twitter.initialize(db);
+    } catch (e) {
+        console.log('twitter.initialize', e);
+    }
+
+    const Players = db.collection('players');
+    try {
+        await updateRanking(Players, twitter);
+    } catch (e) {
+        console.log('updateRanking', e);
+    }
+}
+
+if (require.main === module) {
+    test().catch(function(e) {
+        console.log(e);
+    }).then(function() {
+        process.exit();
+    });
+}

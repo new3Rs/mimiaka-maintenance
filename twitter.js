@@ -170,8 +170,8 @@ async function test() {
     } catch (e) {
         console.log('twitter.initialize', e);
     }
-    twitter.errorNotify('test');
+    await twitter.errorNotify('test');
 }
 if (require.main === module) {
-    test();
+    test().then(function() { process.exit() });
 }
