@@ -39,7 +39,6 @@ async function _updateRanking(Players, twitter) {
         if (e.length == 0) {
             continue;
         }
-        console.log(e[heads.indexOf('氏名')]);
         const player = await Players.findOne({ mamumamuName: e[heads.indexOf('氏名')] }) || {};
         const update = { updatedAt: time };
         const rank = parseInt(e[heads.indexOf('順位')]);
@@ -73,6 +72,7 @@ async function _updateRanking(Players, twitter) {
             addUpdatedProperty(update, player, 'ratingChange', ratingChange);
         }
         if (Object.keys(update).length > 1) {
+            console.log(e[heads.indexOf('氏名')], update);
             if (player._id != null) {
                 await Players.updateOne({ _id: player._id }, { $set: update });
             } else {
