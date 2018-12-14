@@ -39,21 +39,28 @@ async function _updateRanking(Players, twitter) {
         if (e.length == 0) {
             continue;
         }
+        console.log(e[heads.indexOf('氏名')]);
         const player = await Players.findOne({ mamumamuName: e[heads.indexOf('氏名')] }) || {};
         const update = { updatedAt: time };
         const rank = parseInt(e[heads.indexOf('順位')]);
         addUpdatedProperty(update, player, 'rank', rank);
+        console.log(update);
         addUpdatedProperty(update, player, 'mamumamuName', e[heads.indexOf('氏名')]);
+        console.log(update);
         addUpdatedProperty(update, player, 'organization', e[heads.indexOf('所属')]);
+        console.log(update);
         if (!/^\s*$/.test(e[heads.indexOf('性別')])) {
             addUpdatedProperty(update, player, 'sex', e[heads.indexOf('性別')]);
         }
+        console.log(update);
         const age = parseFloat(e[heads.indexOf('年齢')]);
         if (!isNaN(age)) {
             addUpdatedProperty(update, player, 'age', age);
         }
+        console.log(update);
         const rating = parseFloat(e[heads.indexOf('レーティング')]);
         addUpdatedProperty(update, player, 'rating', rating);
+        console.log(update);
         let rankChange = e[heads.indexOf('順位変動')];
         let match;
         if (rankChange === '-') {
@@ -67,12 +74,14 @@ async function _updateRanking(Players, twitter) {
             rankChange = 0;
         }
         addUpdatedProperty(update, player, 'rankChange', rankChange);
+        console.log(update);
         let ratingChange = parseFloat(e[heads.indexOf('レーティング変動')]);
         if (!isNaN(ratingChange)) {
             addUpdatedProperty(update, player, 'ratingChange', ratingChange);
         }
+        console.log(update);
         if (Object.keys(update).length > 1) {
-            console.log(e[heads.indexOf('氏名')], update);
+            console.log('update');
             if (player._id != null) {
                 await Players.updateOne({ _id: player._id }, { $set: update });
             } else {
