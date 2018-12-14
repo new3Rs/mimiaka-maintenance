@@ -38,7 +38,7 @@ async function asahiArticles(News, twitter) {
                 const $articleText = $$('#MainInner .ArticleText');
                 const match = $date.text().match(/([0-9]+)年([0-9]+)月([0-9]+)日/);
                 const date = new Date(match[1], match[2] - 1, match[3], 0, 0, 0, 0);
-                await News.insert({
+                await News.insertOne({
                     title,
                     url,
                     date: dateString(date)
