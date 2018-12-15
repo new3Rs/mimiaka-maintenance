@@ -71,23 +71,20 @@ async function _updateRanking(Players, twitter) {
         if (!isNaN(ratingChange)) {
             addUpdatedProperty(update, player, 'ratingChange', ratingChange);
         }
-        if (Object.keys(update).length > 1) {
-            console.log(e[heads.indexOf('氏名')], e[heads.indexOf('順位')], heads.indexOf('順位'));
-            console.log(update);
-            if (player._id != null) {
-                await Players.updateOne({ _id: player._id }, { $set: update });
-            } else {
-                await Players.insertOne(update);
-            }
-            changed = true;
+        if (player._id != null) {
+            await Players.updateOne({ _id: player._id }, { $set: update });
+        } else {
+            await Players.insertOne(update);
+        }
+        if (Object.keys(update) > 1) {
+            changed = true
         }
     }
-    if (changed) {
-        await Players.updateMany({ updatedAt: { $ne: time }}, { $set: {
-            rank: null,
-            updatedAt: time
-        }});
-    }
+    // 更新されなかったplayerはランク外
+    await Players.updateMany({ updatedAt: { $ne: time }}, { $set: {
+        rank: null,
+        updatedAt: time
+    }});
     return changed;
 }
 
