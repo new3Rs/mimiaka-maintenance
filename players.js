@@ -107,8 +107,8 @@ async function tweetRankingUpdate(Players, twitter) {
     const status = `ランキング表更新しました。
 https://mimiaka.herokuapp.com/ranking
 注目の棋士は${hotPlayers.join(',')}、注目の女流棋士は${hotWomen.join(',')}です！`;
-    // await twitter.tweet(null, status);
-    await twitter.errorNotify(status);
+    await twitter.tweet(null, status);
+    //await twitter.errorNotify(status);
 }
 
 async function updateRanking(Players, twitter) {
