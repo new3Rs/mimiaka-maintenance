@@ -35,7 +35,7 @@ class MimiakaTwitter {
         this.official = await Users.findOne(
             { 'services.twitter.screenName': process.env.HEROKU_APP_ID ? 'mimiaka1846' : 'test_bot1965' }
         );
-        this.developer = await Users.findOne({ 'services.twitter.screenName': 'y_ich' });
+        this.developer = await Users.findOne({ 'services.twitter.screenName': 'y_ich2' });
     }
 
     async errorNotify(message) {
