@@ -16,7 +16,7 @@ function addUpdatedProperty(set, player, key, value) {
 
 async function _updateRanking(Players, twitter) {
     /* update Players */
-    const MAMUMAMU_URL = 'http://sports.geocities.jp/mamumamu0413/total.html';
+    const MAMUMAMU_URL = 'http://mamumamu0413.web.fc2.com/rating/world/ranking.html';
     let changed = false;
     try {
         var $ = cheerio.load(await rp(MAMUMAMU_URL, {followRedirects: false}));
