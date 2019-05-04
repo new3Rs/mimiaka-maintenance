@@ -6,6 +6,8 @@ Players
 */
 
 const rp = require('request-promise-native');
+const jschardet = require('jschardet');
+const iconv = require('iconv-lite');
 const cheerio = require('cheerio');
 
 function addUpdatedProperty(set, player, key, value) {
@@ -19,7 +21,12 @@ async function _updateRanking(Players, twitter) {
     const MAMUMAMU_URL = 'http://mamumamu0413.web.fc2.com/rating/world/ranking.html';
     let changed = false;
     try {
-        var $ = cheerio.load(await rp(MAMUMAMU_URL, {followRedirects: false}));
+        const buffer = await rp(MAMUMAMU_URL, {
+            followRedirects: false,
+            encoding: null
+        });
+        const text = iconv.decode(buffer, jschardet.detect(buffer).encoding);
+        var $ = cheerio.load(text);
     } catch (e) {
         await twitter.errorNotify(`updateRanking: ${e.stack}`);
         return changed;
