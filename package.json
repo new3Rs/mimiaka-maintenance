@@ -9,6 +9,7 @@
   "dependencies": {
     "cheerio": "^1.0.0-rc.3",
     "iconv-lite": "^0.4.24",
+    "jschardet": "^2.1.0",
     "mimiaka": "github:new3Rs/node-mimiaka",
     "mongodb": "^3.2.7",
     "request-promise-native": "^1.0.7",
