@@ -35,7 +35,7 @@ class MimiakaTwitter {
         this.official = await Users.findOne(
             { 'services.twitter.screenName': process.env.HEROKU_APP_ID ? 'mimiaka1846' : 'test_bot1965' }
         );
-        this.developer = await Users.findOne({ 'services.twitter.screenName': 'y_ich2' });
+        this.developer = await Users.findOne({ 'services.twitter.screenName': 'y_ich' }); // なぜかy_ich2にはDMが送れない。
     }
 
     async errorNotify(message) {
@@ -57,6 +57,7 @@ class MimiakaTwitter {
             }});
         } catch (e) {
             console.log('errorNotify', e, this.official);
+            console.log(message);
         }
     }
 
