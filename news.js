@@ -15,7 +15,8 @@ function japaneseDateString(date) {
 
 async function asahiArticles(News, twitter) {
     const texts = [];
-    const today = new Date(Date.now() + (9 * 60 * 60 * 1000));
+    //const today = new Date(Date.now() + (9 * 60 * 60 * 1000));
+    const today = new Date(Date.now());
     const URL = 'http://www.asahi.com/shimen/' +
         dateString(today).replace(/-/g, '') +
         '/index_tokyo_list.html';
@@ -34,9 +35,13 @@ async function asahiArticles(News, twitter) {
             const url = `https://www.asahi.com${$this.find('a').attr('href')}`;
             if ((/囲碁/.test(title)) && (await News.find({url}).count() === 0)) {
                 const $$ = cheerio.load(await rp(url, {followRedirects: false}));
-                const $date = $$('#MainInner .LastUpdated');
-                const $articleText = $$('#MainInner .ArticleText');
+                const $date = $$('.UpdateDate');
+                const $articleText = $$('.ArticleText');
                 const match = $date.text().match(/([0-9]+)年([0-9]+)月([0-9]+)日/);
+                if (match == null) {
+                    await twitter.errorNotify("朝日新聞のフォーマットが変わったかも");
+                    return;
+                }
                 const date = new Date(match[1], match[2] - 1, match[3], 0, 0, 0, 0);
                 await News.insertOne({
                     title,
@@ -53,6 +58,7 @@ async function asahiArticles(News, twitter) {
             }
         }
     } catch (e) {
+        console.log("asahiArticles", e);
         await twitter.errorNotify("朝日新聞のアドレスが変わったかも");
     }
     return texts;
@@ -63,7 +69,7 @@ async function mainichiArticles(News, twitter) {
     const texts = [];
     try {
         const $ = cheerio.load(await rp(URL, {followRedirects: false}));
-        for (const e of $('.newslist .main-box .list-typeD > li').toArray()) {
+        for (const e of $('article').toArray()) {
             const $this = $(e);
             const match = $this.find('.date').text().match(/([0-9]+)年([0-9]+)月([0-9]+)日/);
             const $title = $this.find('a');
