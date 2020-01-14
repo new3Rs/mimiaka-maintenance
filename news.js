@@ -15,8 +15,8 @@ function japaneseDateString(date) {
 
 async function asahiArticles(News, twitter) {
     const texts = [];
-    //const today = new Date(Date.now() + (9 * 60 * 60 * 1000));
-    const today = new Date(Date.now());
+    const today = new Date(Date.now() + (9 * 60 * 60 * 1000));
+    // const today = new Date(Date.now()); // local
     const URL = 'http://www.asahi.com/shimen/' +
         dateString(today).replace(/-/g, '') +
         '/index_tokyo_list.html';
