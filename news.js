@@ -76,8 +76,8 @@ async function mainichiArticles(News, twitter) {
             const url = `http://mainichi.jp${$title.attr('href')}`;
             const title = $title.text();
             const articleText = $this.find('.txt').text();
-            if ((/(第[０-９]+局の[０-９]+|第[０-９]+譜)/.test(title)) && (News.find({url}).count() === 0)) {
-                await News.insertOne({
+            if ((/(第[０-９]+局の[０-９]+|第[０-９]+譜)/.test(title)) && (await News.find({url}).count() === 0)) {
+                    await News.insertOne({
                     title,
                     url,
                     date: `${match[1]}-${match[2]}-${match[3]}`
@@ -140,14 +140,12 @@ async function ironnaArticles(News, twitter) {
             const url = `http://ironna.jp${$title.attr('href')}`;
             const title = $title.text();
             const articleText = $this.find('.word').text();
-            if (articleText.indexOf('碁') >= 0) {
-                if (await News.find({url}).count() === 0) {
-                    await News.insertOne({
-                        title,
-                        url
-                    });
-                    texts.push(textWithin140Chars(`${title}\n`, articleText.replace(/\n\s+/g, '\n'), `\n${url}`));
-                }
+            if (articleText.indexOf('碁') >= 0 && await News.find({url}).count() === 0) {
+                await News.insertOne({
+                    title,
+                    url
+                });
+                texts.push(textWithin140Chars(`${title}\n`, articleText.replace(/\n\s+/g, '\n'), `\n${url}`));
             }
         }
     } catch (e) {
