@@ -35,16 +35,16 @@ class MimiakaTwitter {
         this.official = await Users.findOne(
             { 'services.twitter.screenName': process.env.HEROKU_APP_ID ? 'mimiaka1846' : 'test_bot1965' }
         );
-        this.developer = await Users.findOne({ 'services.twitter.screenName': 'y_ich' }); // なぜかy_ich2にはDMが送れない。
+        this.developer = await Users.findOne({ 'services.twitter.screenName': 'y_ich2' });
     }
 
     async errorNotify(message) {
         /* sends error message */
         const twitter = new Twitter({
-            consumer_key: this.service.consumerKey,
-            consumer_secret: this.service.secret,
-            access_token_key: this.official.services.twitter.accessToken,
-            access_token_secret: this.official.services.twitter.accessTokenSecret,
+            consumer_key: process.env.MIMIAKA_CONSUMER_KEY,
+            consumer_secret: process.env.MIMIAKA_CONSUMER_SECRET,
+            access_token_key: process.env.MIMIAKA_TOKEN,
+            access_token_secret: process.env.MIMIAKA_TOKEN_SECRET,
             request_options: { json: true }
         });
         try {
