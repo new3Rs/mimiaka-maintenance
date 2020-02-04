@@ -92,6 +92,34 @@ async function mainichiArticles(News, twitter) {
     return texts;
 }
 
+async function mainichiDataGoArticles(News, twitter) {
+    const URL = 'https://mainichi.jp/ch190741280i/%E3%83%87%E3%83%BC%E3%82%BF%E3%81%A7%E8%A6%8B%E3%82%8B%E5%9B%B2%E7%A2%81';
+    const texts = [];
+    try {
+        const $ = cheerio.load(await rp(URL, {followRedirects: false}));
+        for (const e of $('article').toArray()) {
+            const $this = $(e);
+            const match = $this.find('.date').text().match(/([0-9]+)年([0-9]+)月([0-9]+)日/);
+            const $link = $this.find('a');
+            const url = `https:${$link.attr('href')}`;
+            const title = $link.find(".midashi").text();
+            const articleText = $this.find('.txt').text();
+            if (await News.find({url}).count() === 0) {
+                    await News.insertOne({
+                    title,
+                    url,
+                    date: `${match[1]}-${match[2]}-${match[3]}`
+                });
+                texts.push(textWithin140Chars(`${title}\n`, articleText.replace(/\n\s+/g, '\n'), `\n${url}`));
+            }
+        }
+    } catch (e) {
+        console.log('mainichimainichiDataGoArticlesArticles', e);
+        await twitter.errorNotify("毎日新聞「データで見る囲碁」のアドレスが変わったかも");
+    }
+    return texts;
+}
+
 async function nhkTextView(News, twitter) {
     const URL = 'http://textview.jp/feed';
     const texts = [];
@@ -297,6 +325,7 @@ async function updateArticles(db, twitter) {
     // 棋聖戦
     texts = texts.concat(await asahiArticles(News, twitter)); // 名人戦
     texts = texts.concat(await mainichiArticles(News, twitter)); //本因坊戦
+    texts = texts.concat(await mainichiDataGoArticles(News, twitter));
     // 王座戦
     // 天元戦
     // 碁聖戦
