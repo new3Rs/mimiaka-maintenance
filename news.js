@@ -15,7 +15,8 @@ function japaneseDateString(date) {
 
 async function asahiArticles(News, twitter) {
     const texts = [];
-    const today = new Date(Date.now() + (9 * 60 * 60 * 1000));
+    const now = Date.now();
+    const today = new Date(now + (9 * 60 * 60 * 1000));
     // const today = new Date(Date.now()); // local
     const URL = 'http://www.asahi.com/shimen/' +
         dateString(today).replace(/-/g, '') +
@@ -44,6 +45,7 @@ async function asahiArticles(News, twitter) {
                 }
                 const date = new Date(match[1], match[2] - 1, match[3], 0, 0, 0, 0);
                 await News.insertOne({
+                    createdAt: now,
                     title,
                     url,
                     date: dateString(date)
@@ -77,10 +79,11 @@ async function mainichiArticles(News, twitter) {
             const title = $title.text();
             const articleText = $this.find('.txt').text();
             if ((/(第[０-９]+局の[０-９]+|第[０-９]+譜)/.test(title)) && (await News.find({url}).count() === 0)) {
-                    await News.insertOne({
+                await News.insertOne({
+                    createdAt: Date.now(),
                     title,
                     url,
-                    date: `${match[1]}-${match[2]}-${match[3]}`
+                    date: [match[1], twoDigits(match[2]), twoDigits(match[3])].join("-")
                 });
                 texts.push(textWithin140Chars(`${title}\n`, articleText.replace(/\n\s+/g, '\n'), `\n${url}`));
             }
@@ -105,10 +108,11 @@ async function mainichiDataGoArticles(News, twitter) {
             const title = $link.find(".midashi").text();
             const articleText = $this.find('.txt').text();
             if (await News.find({url}).count() === 0) {
-                    await News.insertOne({
+                await News.insertOne({
+                    createdAt: Date.now(),
                     title,
                     url,
-                    date: `${match[1]}-${match[2]}-${match[3]}`
+                    date: [match[1], twoDigits(match[2]), twoDigits(match[3])].join("-")
                 });
                 texts.push(textWithin140Chars(`${title}\n`, articleText.replace(/\n\s+/g, '\n'), `\n${url}`));
             }
@@ -142,6 +146,7 @@ async function nhkTextView(News, twitter) {
                 const date = new Date(item.pubDate[0]);
                 if (await News.find({ url }).count() === 0) {
                     await News.insertOne({
+                        createdAt: Date.now(),
                         title,
                         url,
                         date: dateString(date)
@@ -170,6 +175,7 @@ async function ironnaArticles(News, twitter) {
             const articleText = $this.find('.word').text();
             if (articleText.indexOf('碁') >= 0 && await News.find({url}).count() === 0) {
                 await News.insertOne({
+                    createdAt: Date.now(),
                     title,
                     url
                 });
@@ -199,6 +205,7 @@ async function gameResults(News, GameInfos, twitter) {
             const date = new Date(match[1]);
             if (date.getTime() > new Date(latest && latest.date || '2000-01-01').getTime()) {
                 await News.insertOne({
+                    createdAt: Date.now(),
                     title,
                     date: match[1],
                     html
