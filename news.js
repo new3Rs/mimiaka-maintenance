@@ -44,6 +44,12 @@ async function asahiArticles(News, twitter) {
                     return;
                 }
                 const date = new Date(match[1], match[2] - 1, match[3], 0, 0, 0, 0);
+                console.log({
+                    createdAt: now,
+                    title,
+                    url,
+                    date: dateString(date)
+                });
                 await News.insertOne({
                     createdAt: now,
                     title,
