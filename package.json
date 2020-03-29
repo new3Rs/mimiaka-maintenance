@@ -9,12 +9,12 @@
   "dependencies": {
     "cheerio": "^1.0.0-rc.3",
     "iconv-lite": "^0.4.24",
-    "jschardet": "^2.1.0",
+    "jschardet": "^2.1.1",
     "mimiaka": "github:new3Rs/node-mimiaka",
-    "mongodb": "^3.2.7",
-    "request-promise-native": "^1.0.7",
+    "mongodb": "^3.5.5",
+    "request-promise-native": "^1.0.8",
     "twitter": "github:y-ich/node-twitter",
-    "underscore": "^1.9.1",
-    "xml2js": "^0.4.19"
+    "underscore": "^1.9.2",
+    "xml2js": "^0.4.23"
   }
 }
