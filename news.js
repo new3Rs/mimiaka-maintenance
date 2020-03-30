@@ -331,7 +331,7 @@ async function updateFromGameResult(last, GameInfos, News, twitter) {
 }
 
 async function updateArticles(db, twitter) {
-    const News = db.collection('news');
+    const News = db.collection('new'); // "new"は"news"のタイポ。互換性のためにこのままにする。
     const GameInfos = db.collection('gameinfos');
     let texts = [];
     const today = new Date(Date.now() + (9 * 60 * 60 * 1000));
