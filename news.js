@@ -44,13 +44,12 @@ async function asahiArticles(News, twitter) {
                     return;
                 }
                 const date = new Date(match[1], match[2] - 1, match[3], 0, 0, 0, 0);
-                await News.insertOne({
+                const result = await News.insertOne({
                     createdAt: now,
                     title,
                     url,
                     date: dateString(date)
                 });
-                await twitter.errorNotify(dateString(date));
                 texts.push(textWithin140Chars(
                     title + '\n',
                     $articleText.text()
@@ -58,6 +57,7 @@ async function asahiArticles(News, twitter) {
                         .replace('（６目半コミ出し）\n＊\n', ''),
                     '\n' + url
                 ));
+                await twitter.errorNotify(JSON.stringify(result));
             }
         }
     } catch (e) {
@@ -80,13 +80,14 @@ async function mainichiArticles(News, twitter) {
             const title = $title.text();
             const articleText = $this.find('.txt').text();
             if ((/(第[０-９]+局の[０-９]+|第[０-９]+譜)/.test(title)) && (await News.find({url}).count() === 0)) {
-                await News.insertOne({
+                const result = await News.insertOne({
                     createdAt: Date.now(),
                     title,
                     url,
                     date: [match[1], twoDigits(match[2]), twoDigits(match[3])].join("-")
                 });
                 texts.push(textWithin140Chars(`${title}\n`, articleText.replace(/\n\s+/g, '\n'), `\n${url}`));
+                await twitter.errorNotify(JSON.stringify(result));
             }
         }
     } catch (e) {
@@ -109,13 +110,14 @@ async function mainichiDataGoArticles(News, twitter) {
             const title = $link.find(".midashi").text();
             const articleText = $this.find('.txt').text();
             if (await News.find({url}).count() === 0) {
-                await News.insertOne({
+                const result = await News.insertOne({
                     createdAt: Date.now(),
                     title,
                     url,
                     date: [match[1], twoDigits(match[2]), twoDigits(match[3])].join("-")
                 });
                 texts.push(textWithin140Chars(`${title}\n`, articleText.replace(/\n\s+/g, '\n'), `\n${url}`));
+                await twitter.errorNotify(JSON.stringify(result));
             }
         }
     } catch (e) {
@@ -146,13 +148,14 @@ async function nhkTextView(News, twitter) {
                 const articleText = _.unescape(item.description[0].trim()).replace(/&#[0-9]+;/, '');
                 const date = new Date(item.pubDate[0]);
                 if (await News.find({ url }).count() === 0) {
-                    await News.insertOne({
+                    const result = await News.insertOne({
                         createdAt: Date.now(),
                         title,
                         url,
                         date: dateString(date)
                     });
                     texts.push(textWithin140Chars(`「${title}」\n`, articleText.replace(/\n\s+/g, '\n'), `\n${url}`));
+                    await twitter.errorNotify(JSON.stringify(result));
                 }
             }
         }
@@ -175,12 +178,13 @@ async function ironnaArticles(News, twitter) {
             const title = $title.text();
             const articleText = $this.find('.word').text();
             if (articleText.indexOf('碁') >= 0 && await News.find({url}).count() === 0) {
-                await News.insertOne({
+                const result = await News.insertOne({
                     createdAt: Date.now(),
                     title,
                     url
                 });
                 texts.push(textWithin140Chars(`${title}\n`, articleText.replace(/\n\s+/g, '\n'), `\n${url}`));
+                await twitter.errorNotify(JSON.stringify(result));
             }
         }
     } catch (e) {
@@ -205,7 +209,7 @@ async function gameResults(News, GameInfos, twitter) {
             const latest = await News.findOne({ title }, { sort: { date: -1 }});
             const date = new Date(match[1]);
             if (date.getTime() > new Date(latest && latest.date || '2000-01-01').getTime()) {
-                await News.insertOne({
+                const result = await News.insertOne({
                     createdAt: Date.now(),
                     title,
                     date: match[1],
@@ -213,6 +217,7 @@ async function gameResults(News, GameInfos, twitter) {
                 });
                 texts.push(title + '\n' + URL);
                 await registerGameResults(GameInfos, date, $, $('body table').eq(1), twitter);
+                await twitter.errorNotify(JSON.stringify(result));
             }
         } else {
             await twitter.errorNotify("先週の主な対局結果のフォーマットが変わったかも");
