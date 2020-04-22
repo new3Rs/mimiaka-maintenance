@@ -353,13 +353,13 @@ async function updateArticles(db, twitter) {
             `${japaneseDateString(today)}朝の観戦記は${texts.length}件です。`
         :
             `${japaneseDateString(today)}朝は観戦記の更新がありませんでした。`
-        ) + '\n皆様、今日も良い一日を♫'
+        ) + '\n昨日のニュースの一覧がここ(https://mimiaka-python.herokuapp.com/news/)で見られます。\n皆様、今日も良い一日を♫'
     :
         'こんばんは。\n' + (texts.length > 0 ?
             `${japaneseDateString(today)}夕方の観戦記は${texts.length}件です。`
         :
             `${japaneseDateString(today)}夕方は観戦記の更新がありませんでした。`
-        ) + '\n皆様、今夜も良い一時を☆';
+        ) + '\n昨日今日のニュースの一覧がここ(https://mimiaka-python.herokuapp.com/news/)で見られます。\n皆様、今夜も良い一時を☆';
 
     await twitter.tweet(null, status);
     for (const text of texts) {
