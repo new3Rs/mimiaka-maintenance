@@ -18,9 +18,8 @@ async function asahiArticles(News, twitter) {
     const now = Date.now();
     const today = new Date(now + (9 * 60 * 60 * 1000));
     // const today = new Date(Date.now()); // local
-    const URL = 'http://www.asahi.com/shimen/' +
-        dateString(today).replace(/-/g, '') +
-        '/index_tokyo_list.html';
+    const URL = 'https://www.asahi.com/shimen/' +
+        dateString(today).replace(/-/g, '') + '/';
     try {
         const content = await rp(URL, { followRedirects: false });
         const $ = cheerio.load(content);
@@ -68,7 +67,7 @@ async function asahiArticles(News, twitter) {
 }
 
 async function mainichiArticles(News, twitter) {
-    const URL = 'http://mainichi.jp/igo/';
+    const URL = 'https://mainichi.jp/igo/';
     const texts = [];
     try {
         const $ = cheerio.load(await rp(URL, {followRedirects: false}));
@@ -76,7 +75,7 @@ async function mainichiArticles(News, twitter) {
             const $this = $(e);
             const match = $this.find('.date').text().match(/([0-9]+)年([0-9]+)月([0-9]+)日/);
             const $title = $this.find('a');
-            const url = `http://mainichi.jp${$title.attr('href')}`;
+            const url = `https://mainichi.jp${$title.attr('href')}`;
             const title = $title.text();
             const articleText = $this.find('.txt').text();
             if ((/(第[０-９]+局の[０-９]+|第[０-９]+譜)/.test(title)) && (await News.find({url}).count() === 0)) {
@@ -128,7 +127,7 @@ async function mainichiDataGoArticles(News, twitter) {
 }
 
 async function nhkTextView(News, twitter) {
-    const URL = 'http://textview.jp/feed';
+    const URL = 'https://textview.jp/feed';
     const texts = [];
     try {
         const content = await rp(URL, { followRedirects: false });
@@ -167,14 +166,14 @@ async function nhkTextView(News, twitter) {
 }
 
 async function ironnaArticles(News, twitter) {
-    const URL = 'http://ironna.jp/search/tag/%E3%82%B2%E3%83%BC%E3%83%A0';
+    const URL = 'https://ironna.jp/search/tag/%E3%82%B2%E3%83%BC%E3%83%A0';
     const texts = [];
     try {
         const $ = cheerio.load(await rp(URL, {followRedirects: false}));
         for (const e of $('#search-results li').toArray()) {
             const $this = $(e);
             const $title = $this.find('h1 a');
-            const url = `http://ironna.jp${$title.attr('href')}`;
+            const url = `https://ironna.jp${$title.attr('href')}`;
             const title = $title.text();
             const articleText = $this.find('.word').text();
             if (articleText.indexOf('碁') >= 0 && await News.find({url}).count() === 0) {
@@ -195,7 +194,7 @@ async function ironnaArticles(News, twitter) {
 }
 
 async function gameResults(News, GameInfos, twitter) {
-    const URL = 'http://njk.nihonkiin.or.jp/UI/01INFO/news.php';
+    const URL = 'https://njk.nihonkiin.or.jp/UI/01INFO/news.php';
     const texts = [];
     try {
         const html = iconv.decode(await rp(URL, {
