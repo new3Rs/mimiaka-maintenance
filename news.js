@@ -194,15 +194,11 @@ async function ironnaArticles(News, twitter) {
 }
 
 async function gameResults(News, GameInfos, twitter) {
-    const URL = 'https://njk.nihonkiin.or.jp/UI/01INFO/news.php';
+    const URL = 'https://www.nihonkiin.or.jp/match/2week.html';
     const texts = [];
     try {
-        const html = iconv.decode(await rp(URL, {
-            followRedirects: false,
-            encoding: null
-        }), 'EUC-JP');
-        const $ = cheerio.load(html);
-        const match = $('body div:first-child').text().match(/更新日時：([0-9]{4}-[0-9]{2}-[0-9]{2})/);
+        const $ = cheerio.load(await rp(URL, { followRedirects: false }));
+        const match = $('#content section:first-of-type div:first-of-type').text().match(/更新日時：([0-9]{4}-[0-9]{2}-[0-9]{2})/);
         const title = '先週の主な対局結果';
         if (match != null) {
             const latest = await News.findOne({ title }, { sort: { date: -1 }});
@@ -215,7 +211,7 @@ async function gameResults(News, GameInfos, twitter) {
                     html
                 });
                 texts.push(title + '\n' + URL);
-                await registerGameResults(GameInfos, date, $, $('body table').eq(1), twitter);
+                await registerGameResults(GameInfos, date, $, $('#content section:first-of-type table:first-of-type'), twitter);
                 await twitter.errorNotify(JSON.stringify(result));
             }
         } else {
