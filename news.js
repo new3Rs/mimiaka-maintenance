@@ -16,7 +16,7 @@ function japaneseDateString(date) {
 async function asahiArticles(News, twitter) {
     const texts = [];
     const now = Date.now();
-    const today = new Date(now + (9 * 60 * 60 * 1000));
+    const today = new Date(now + (9 * 60 * 60 * 1000)); // herokuはUTCなので日本時間オフセットを足す
     // const today = new Date(Date.now()); // local
     const URL = 'https://www.asahi.com/shimen/' +
         dateString(today).replace(/-/g, '') + '/';
@@ -27,7 +27,7 @@ async function asahiArticles(News, twitter) {
             return /(碁将棋|将棋連載)/.test($(this).find('.ListTitle').text());
         });
         if ($igoshogi.length === 0) {
-            await twitter.errorNotify("朝日新聞のフォーマットが変わったかも");
+            await twitter.errorNotify("朝日新聞のフォーマットが変わったかも(カテゴリなし)");
         }
         for (const e of $igoshogi.find('.List li:not(.Image)').toArray()) {
             const $this = $(e);
@@ -39,7 +39,7 @@ async function asahiArticles(News, twitter) {
                 const $articleText = $$('.ArticleText');
                 const match = $date.text().match(/([0-9]+)年([0-9]+)月([0-9]+)日/);
                 if (match == null) {
-                    await twitter.errorNotify("朝日新聞のフォーマットが変わったかも");
+                    await twitter.errorNotify("朝日新聞のフォーマットが変わったかも(日付取得失敗)");
                     return;
                 }
                 const date = new Date(match[1], match[2] - 1, match[3], 0, 0, 0, 0);
@@ -61,7 +61,7 @@ async function asahiArticles(News, twitter) {
         }
     } catch (e) {
         console.log("asahiArticles", e);
-        await twitter.errorNotify("朝日新聞のアドレスが変わったかも");
+        await twitter.errorNotify("朝日新聞のアドレスが変わったかも(例外)");
     }
     return texts;
 }
@@ -365,3 +365,7 @@ async function updateArticles(db, twitter) {
 
 exports.updateArticles = updateArticles;
 exports.updateFromGameResult = updateFromGameResult;
+
+if (require.main === module) {
+    asahiArticles(null, null);
+}
