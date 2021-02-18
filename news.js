@@ -71,13 +71,13 @@ async function mainichiArticles(News, twitter) {
     const texts = [];
     try {
         const $ = cheerio.load(await rp(URL, {followRedirects: false}));
-        for (const e of $('article').toArray()) {
+        for (const e of $('.articlelist li').toArray()) {
             const $this = $(e);
-            const match = $this.find('.date').text().match(/([0-9]+)年([0-9]+)月([0-9]+)日/);
-            const $title = $this.find('a');
-            const url = `https://mainichi.jp${$title.attr('href')}`;
+            const match = $this.find('.articletag-date').text().match(/([0-9]+)\/([0-9]+)/);
+            const url = `https:${$this.find('a').attr('href')}`;
+            const $title = $this.find(".articlelist-title");
             const title = $title.text();
-            const articleText = $this.find('.txt').text();
+            const articleText = $this.find('.text-ellipsis-2').text();
             if ((/(第[０-９]+局の[０-９]+|第[０-９]+譜)/.test(title)) && (await News.find({url}).count() === 0)) {
                 const result = await News.insertOne({
                     createdAt: Date.now(),
