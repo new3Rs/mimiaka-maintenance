@@ -79,11 +79,12 @@ async function mainichiArticles(News, twitter) {
             const title = $title.text();
             const articleText = $this.find('.text-ellipsis-2').text();
             if ((/(第[０-９]+局の[０-９]+|第[０-９]+譜)/.test(title)) && (await News.find({url}).count() === 0)) {
+                const today = new Date(Date.now() + (9 * 60 * 60 * 1000));
                 const result = await News.insertOne({
                     createdAt: Date.now(),
                     title,
                     url,
-                    date: [match[1], twoDigits(match[2]), twoDigits(match[3])].join("-")
+                    date: [today.getFullYear().toString(), twoDigits(match[1]), twoDigits(match[2])].join("-")
                 });
                 texts.push(textWithin140Chars(`${title}\n`, articleText.replace(/\n\s+/g, '\n'), `\n${url}`));
                 await twitter.errorNotify(JSON.stringify(result));
