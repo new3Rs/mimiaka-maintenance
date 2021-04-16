@@ -201,7 +201,7 @@ async function gameResults(News, GameInfos, twitter) {
         const html = await rp(URL, { followRedirects: false });
         const $ = cheerio.load(html);
         const match = $('#content section:first-of-type div:first-of-type').text().match(/更新日時：([0-9]{4}-[0-9]{2}-[0-9]{2})/);
-        const title = '先週の主な対局結果';
+        const title = '今週の主な対局結果';
         if (match != null) {
             const latest = await News.findOne({ title }, { sort: { date: -1 }});
             const date = new Date(match[1]);
@@ -217,7 +217,7 @@ async function gameResults(News, GameInfos, twitter) {
                 await twitter.errorNotify(JSON.stringify(result));
             }
         } else {
-            await twitter.errorNotify("先週の主な対局結果のフォーマットが変わったかも");
+            await twitter.errorNotify(`${title}のフォーマットが変わったかも`);
         }
     } catch (e) {
         console.log(e);
