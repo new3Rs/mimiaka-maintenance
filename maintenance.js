@@ -100,7 +100,7 @@ async function updatePickup(db, twitter) {
         const interval = parseInt(thisYear) - parseInt(c.DT.replace(/-.*/, ''));
         const text = `今日の一局は${c.GN || c.EV}です。本局は${interval}年前の今日打たれました。 #棋譜並べ会 https://mimiaka.herokuapp.com/`;
         // await twitter.tweet(null, text);
-        await twitter.errorNotify(text);
+        // await twitter.errorNotify(text);
     } else {
         const pickups = await GameInfos.find({
             deleted: { $ne: true },

@@ -35,8 +35,8 @@ async function asahiArticles(News, twitter) {
             const url = `https://www.asahi.com${$this.find('a').attr('href')}`;
             if ((/囲碁/.test(title)) && (await News.find({url}).count() === 0)) {
                 const $$ = cheerio.load(await rp(url, {followRedirects: false}));
-                const $date = $$('time');
-                const $articleText = $$('._3YqJ1');
+                const $date = $$("time");
+                const $articleText = $$("._3YqJ1 > p");
                 const match = $date.text().match(/([0-9]+)年([0-9]+)月([0-9]+)日/);
                 if (match == null) {
                     await twitter.errorNotify("朝日新聞のフォーマットが変わったかも(日付取得失敗)");
