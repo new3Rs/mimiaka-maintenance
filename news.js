@@ -87,7 +87,6 @@ async function mainichiArticles(News, twitter) {
                     date: [today.getFullYear().toString(), twoDigits(match[1]), twoDigits(match[2])].join("-")
                 });
                 texts.push(textWithin140Chars(`${title}\n`, articleText.replace(/\n\s+/g, '\n'), `\n${url}`));
-                await twitter.errorNotify(JSON.stringify(result));
             }
         }
     } catch (e) {
@@ -117,7 +116,6 @@ async function mainichiDataGoArticles(News, twitter) {
                     date: [match[1], twoDigits(match[2]), twoDigits(match[3])].join("-")
                 });
                 texts.push(textWithin140Chars(`${title}\n`, articleText.replace(/\n\s+/g, '\n'), `\n${url}`));
-                await twitter.errorNotify(JSON.stringify(result));
             }
         }
     } catch (e) {
@@ -155,7 +153,6 @@ async function nhkTextView(News, twitter) {
                         date: dateString(date)
                     });
                     texts.push(textWithin140Chars(`「${title}」\n`, articleText.replace(/\n\s+/g, '\n'), `\n${url}`));
-                    await twitter.errorNotify(JSON.stringify(result));
                 }
             }
         }
@@ -184,7 +181,6 @@ async function ironnaArticles(News, twitter) {
                     url
                 });
                 texts.push(textWithin140Chars(`${title}\n`, articleText.replace(/\n\s+/g, '\n'), `\n${url}`));
-                await twitter.errorNotify(JSON.stringify(result));
             }
         }
     } catch (e) {
@@ -214,7 +210,6 @@ async function gameResults(News, GameInfos, twitter) {
                 });
                 texts.push(title + '\n' + URL);
                 await registerGameResults(GameInfos, date, $, $('#content section:first-of-type table:first-of-type'), twitter);
-                await twitter.errorNotify(JSON.stringify(result));
             }
         } else {
             await twitter.errorNotify(`${title}のフォーマットが変わったかも`);
