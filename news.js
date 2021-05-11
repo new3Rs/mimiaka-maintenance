@@ -56,7 +56,6 @@ async function asahiArticles(News, twitter) {
                         .replace('（６目半コミ出し）\n＊\n', ''),
                     '\n' + url
                 ));
-                await twitter.errorNotify(JSON.stringify(result));
             }
         }
     } catch (e) {
