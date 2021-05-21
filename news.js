@@ -208,7 +208,7 @@ async function gameResults(News, GameInfos, twitter) {
                     html
                 });
                 texts.push(title + '\n' + URL);
-                await registerGameResults(GameInfos, date, $, $('#content section:first-of-type table:first-of-type'), twitter);
+                await registerGameResults(GameInfos, date, $, $('#content section:first-of-type li:first-of-type table:first-of-type'), twitter);
             }
         } else {
             await twitter.errorNotify(`${title}のフォーマットが変わったかも`);
