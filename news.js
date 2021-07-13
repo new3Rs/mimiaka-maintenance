@@ -335,7 +335,7 @@ async function updateArticles(db, twitter) {
     // 碁聖戦
     // 十段戦
     texts = texts.concat(await nhkTextView(News, twitter)); //NHKテキストビュー
-    texts = texts.concat(await ironnaArticles(News, twitter)); //iRONNA「ゲーム」タグ
+    // texts = texts.concat(await ironnaArticles(News, twitter)); //iRONNA「ゲーム」タグ。2021年3月31日でiRONNA終了
     texts = texts.concat(await gameResults(News, GameInfos, twitter)); // 日本棋院
     // texts = texts.concat(sinaArticles()); // 新浪体育 jack-bauerに移した
 
