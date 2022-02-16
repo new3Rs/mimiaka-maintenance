@@ -24,7 +24,7 @@ async function asahiArticles(News, twitter) {
         const content = await rp(URL, { followRedirects: false });
         const $ = cheerio.load(content);
         const $igoshogi = $('#MainInner .Section').filter(function() {
-            return /(碁将棋|将棋連載)/.test($(this).find('.ListTitle').text());
+            return /(碁将棋|将棋連載|北京五輪)/.test($(this).find('.ListTitle').text());
         });
         if ($igoshogi.length === 0) {
             await twitter.errorNotify("朝日新聞のフォーマットが変わったかも(カテゴリなし)");
