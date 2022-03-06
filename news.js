@@ -229,6 +229,9 @@ async function sgfResult(text, twitter) {
     if (text === '不戦勝') {
         return 'B+Default';
     }
+    if (text === '無勝負') {
+        return 'B+Void';
+    }
     let re = text.charAt(0) === '黒' ? 'B+' : 'W+';
     re += /中押/.test(text) ?
         'R'
