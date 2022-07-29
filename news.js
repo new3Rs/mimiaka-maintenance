@@ -24,7 +24,7 @@ async function asahiArticles(News, twitter) {
         const content = await rp(URL, { followRedirects: false });
         const $ = cheerio.load(content);
         const $igoshogi = $('#MainInner .Section').filter(function() {
-            return /(碁将棋|将棋連載|北京五輪)/.test($(this).find('.ListTitle').text());
+            return /(碁将棋|将棋連載)/.test($(this).find('.ListTitle').text());
         });
         if ($igoshogi.length === 0) {
             await twitter.errorNotify("朝日新聞のフォーマットが変わったかも(カテゴリなし)");
@@ -125,39 +125,29 @@ async function mainichiDataGoArticles(News, twitter) {
 }
 
 async function nhkTextView(News, twitter) {
-    const URL = 'https://textview.jp/feed';
+    const URL = 'https://mag.nhk-book.co.jp/category/enjoy/enjoy-hobby';
     const texts = [];
     try {
-        const content = await rp(URL, { followRedirects: false });
-        const { rss } = await new Promise(function(res, rej) {
-            xml2js.parseString(content, function(err, result) {
-                if (err) {
-                    rej(err);
-                } else {
-                    res(result);
-                }
-            });
-        });
-        for (const item of rss && rss.channel && rss.channel[0] && rss.channel[0].item || []) {
-            if (item.category && item.category.indexOf('囲碁講座') >= 0) {
-                const url = item.link;
-                const title = item.title[0].trim();
-                const articleText = _.unescape(item.description[0].trim()).replace(/&#[0-9]+;/, '');
-                const date = new Date(item.pubDate[0]);
-                if (await News.find({ url }).count() === 0) {
-                    const result = await News.insertOne({
-                        createdAt: Date.now(),
-                        title,
-                        url,
-                        date: dateString(date)
-                    });
-                    texts.push(textWithin140Chars(`「${title}」\n`, articleText.replace(/\n\s+/g, '\n'), `\n${url}`));
-                }
+        const $ = cheerio.load(await rp(URL, {followRedirects: false}));
+        for (const e of $('.post-card').toArray()) {
+            const $this = $(e);
+            const date = $this.find('.created-at').text().replace("/", "-");
+            const $link = $this.find('a');
+            const url = $link.attr('href');
+            const title = $link.text();
+            if (await News.find({url}).count() === 0) {
+                const result = await News.insertOne({
+                    createdAt: Date.now(),
+                    title,
+                    url,
+                    date: date
+                });
+                texts.push(textWithin140Chars(`${title}\n`, "", `\n${url}`));
             }
         }
     } catch (e) {
         console.log('nhkTextView', e);
-        await twitter.errorNotify("NHKテキストビューのアドレスが変わったかも");
+        await twitter.errorNotify("NHKデジタルマガジンのアドレスが変わったかも");
     }
     return texts;
 }
