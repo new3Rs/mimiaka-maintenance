@@ -125,7 +125,7 @@ async function mainichiDataGoArticles(News, twitter) {
 }
 
 async function nhkTextView(News, twitter) {
-    const URL = 'https://mag.nhk-book.co.jp/category/enjoy/enjoy-hobby';
+    const URL = 'https://mag.nhk-book.co.jp/tag/%e5%9b%b2%e7%a2%81%e8%ac%9b%e5%ba%a7';
     const texts = [];
     try {
         const $ = cheerio.load(await rp(URL, {followRedirects: false}));
@@ -355,5 +355,5 @@ exports.updateArticles = updateArticles;
 exports.updateFromGameResult = updateFromGameResult;
 
 if (require.main === module) {
-    asahiArticles(null, null);
+    nhkTextView(null, null);
 }
