@@ -128,7 +128,10 @@ async function nhkTextView(News, twitter) {
     const URL = 'https://mag.nhk-book.co.jp/tag/%e5%9b%b2%e7%a2%81%e8%ac%9b%e5%ba%a7';
     const texts = [];
     try {
-        const $ = cheerio.load(await rp(URL, {followRedirects: false}));
+        const $ = cheerio.load(await rp(URL, {
+            headers: { "User-Agent": "node.js" }, // nhk-book.co.jpはuser agentのありなしをチェックしている
+            followRedirects: false
+        }));
         for (const e of $('.post-card').toArray()) {
             const $this = $(e);
             const date = $this.find('.created-at').text().replace("/", "-");
