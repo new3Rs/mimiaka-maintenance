@@ -140,6 +140,7 @@ async function dailyMaintenance() {
     } catch (e) {
         console.log('twitter.initialize', e);
     }
+    /*
     try {
         await endLives(db);
     } catch (e) {
@@ -162,12 +163,6 @@ async function dailyMaintenance() {
     } catch (e) {
         console.log('updateArticles', e);
     }
-    const Players = db.collection('players');
-    try {
-        await updateRanking(Players, twitter);
-    } catch (e) {
-        console.log('updateRanking', e);
-    }
     try {
         await updatePickup(db, twitter);
     } catch (e) {
@@ -177,6 +172,13 @@ async function dailyMaintenance() {
         createIndices(db);
     } catch (e) {
         console.log('createIndices', e);
+    }
+    */
+    const Players = db.collection('players');
+    try {
+        await updateRanking(Players, twitter);
+    } catch (e) {
+        console.log('updateRanking', e);
     }
     await client.close();
 }
